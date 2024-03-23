@@ -1,0 +1,46 @@
+OGNI PAGINA HTML SARA4 UN MODULO
+
+___________________________________________
+	SECURITI  ??
+
+https://docs.microsoft.com/en-us/aspnet/core/security/cors?view=aspnetcore-5.0
+services.AddCors(options => {  options.AddDefaultPolicy(  builder => { builder.WithOrigins("http://example.com", "http://www.contoso.com"); }); });
+
+
+
+in ConfigureServices:
+C# :
+services.AddCors(options =>            {
+                options.AddDefaultPolicy(
+                    builder =>                    {
+                        builder.WithOrigins("http://localhost:4200");
+                    });
+            });
+aprés, dans: Configure 
+aprés app.UseRouting();
+app.UseCors();
+
+
+_______________________________
+lista:
+
+<datalist id="browsers">
+  <option value="Edge">
+  <option value="Firefox">
+  <option value="Chrome">
+  <option value="Opera">
+  <option value="Safari">
+</datalist>
+
+
+	------------
+
+<label for="myBrowser">Choose a browser from this list:</label>
+<input list="browsers" id="myBrowser" name="myBrowser" />          // --> ha list="browsers"
+<datalist id="browsers">
+  <option value="Chrome"></option>
+  <option value="Firefox"></option>
+  <option value="Opera"></option>
+  <option value="Safari"></option>
+  <option value="Microsoft Edge"></option>
+</datalist>

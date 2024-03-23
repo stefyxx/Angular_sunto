@@ -1,0 +1,157 @@
+	MY PERSONAL TYPE/ Interface --> ng g i models/MyTipeModel
+		Enum, se necessario --> ng g e folder/MyEnumEnum
+export interface TaskModel {
+    name: string;
+    isImportant: boolean;
+}
+
+_____________________________________________________________________________________________
+
+	PIPE
+@Pipe({
+  name: 'MyPersonal',
+  //standalone: true  --> se voglio applicarlo in tutto il project  *
+})
+
+export class MyPersonalPipe implements PipeTransform { 
+	transform(value: number, ...): string { ... return ...;}}
+
+*nel MODULARE --> scirvero' l'importo into app.module.ts
+__________________________________________________________________________________________
+
+	COME RECUPERARE UN VALORE DA UN COMPONENT E RENDERLO VISIBILE AL PARENT
+ @Input			        --> é il parent che mi dona questo valore
+myVar: myModel | null = null;
+--> <p> {{myVar}} </p>
+		--------------------------------------------------
+ [(ngModel)]			--> recupero un valore e lo mando al file.ts x fare delle operazioni -->
+myNb: number|null = 0;	--> myVar da RIEMPIRE con valore recuperato da ngModel
+result: number|null = 0;
+
+raddoppia(){
+	this.result = this.myNb *this.myNb;
+	//return this.result;}
+
+-->  <input type="number" [(ngModel)]="myNb" id="myNb"  placeholder="Inserisci un numero">  --> recupera il valore
+     <button (onClick)="raddoppia()"> * </button>  --> start la funzione
+     <p> {{result}} </p>  			   --> in diretta il cambiamento
+
+
+		--------------------------------------------------
+	rimanendo sul fatto che ngModel mi permette di modificare un valore, che RESTA into myComponent: 
+	
+[ngModel]	one way --> dalla vista -> al back (myComponent.html -> myComponent.ts) --> equivale a un 			READONLY
+(ngModel)	one way --> dal back -> alla vista (myComponent.ts -> myComponent.html) 
+[(ngModel)] 	two way --> garantisce un'associazione dati bidirezionale:
+			    dalla vista, myComponent.html -> al back, myComponent.ts
+		  	    dal back, myComponent.ts -> alla vista, myComponent.html
+
+Quindi se ho bisogno di reinviare la modifica al PARENT, Devo fare un @Output()
+
+		--------------------------------------------------
+
+  @Output()			--> é l'enfant che dona questo valore al parent
+				--> emetto SEMPRE un EVENT:  se scrivo qualcosa nell'input; l'input cambia, e posso cambiare l'imput anche x es (mouseOver), ossia 
+con tutti gli EVENTS JS faccio scattate un Event e, quindi, POSSO INVIARLO AL PARENT  con una funzione
+ 
+  onClose: EventEmitter<boolean> = new EventEmitter();
+
+  close(confirm :boolean) {
+    this.onClose.emit(confirm);
+  }
+
+
+ 		-------------------------------------------------
+
+	COME RECUPERARE UN VALORE DA UN COMPONENT E RENDERLO VISIBILE OVUNQUE 
+ho 2 possibilità:
+1- Signal --> possibile con project Standalone
+2- Stores --> possibile con tutti i tipi di projects
+
+
+		1) SIGNAL
+in primis CREO un Service (ng g s ...); in esso:
+	ogni VARIABILE sarà un OBSERVABLE (la osservo perché se cambia, devo poter vedere i cambiamenti in tempo reale)
+	
+	ogni METHODS o retorn Void o return OBSERVABLE<any>
+
+		-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+SE il signal 
+	é la risposta di un'API --> 
+	    devo implementare nel ctor HttpClient --> constructor(private _http: HttpClient) { }
+	    e in un method faro' return:
+	      es: method GET x avere la lista: 
+	      public GetAll(): Observable<IFilm[]> { return this._http.get<IFilm[]>(this._url);}
+		
+	      es: method GET x vedere detail all'id:
+  	      public GetOne(id: number): Observable<IFilm> { return this._http.get<IFilm>(`${this._url}/${id}`);}
+	
+	      es: method POST x inserire un film
+  	      public Post(content: IFilm): Observable<any> { return this._http.post(this._url, content, this.optionRequete);}
+		-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+SE il signal 
+	é una variabile che cambia SOLO nel mio prj Angular, es il titolo di una page --> nel service
+	    -devo creare la variabile WRITABLESIGNAL<any> = signal() -->
+	      title: WritableSignal<string> = signal('');
+	    -e nel method la modifico --> myVar.set()
+  	      public setTitle(titleL: string):void { this.title.set(titleL);}
+
+IN APP.COMPONENT
+	-devo creare la variabile --> Signal<any> (perché cambierà in base alla page)
+  myTitle: Signal<string>
+
+	-devo sempre implementare il servizio:
+  constructor(
+    private readonly _titleService: TitleService,
+  ){
+    this.myTitle = _titleService.title;  --> riempio la variabile OBS del service col nuovo valore
+  }
+
+
+IN COMPONENT 
+	-devo sempre implementare il servizio, ma lo sett anche:
+ constructor(
+    private readonly _titleService: TitleService
+  ) {
+    _titleService.setTitle('Calcolatrice')  --> metto il title che voglio (il valore verrà inviato a myTitle) 
+  }
+
+[ ossia: _titleService.setTitle('Calcolatrice') --> cambia title del service --> e con this.myTitle = _titleService.title risetta title di app.component ]
+
+
+
+  --> into Component: .subscribe() --> x abbonarsi al risultato (subscribe é asynchron)--> trasformo i datas della request nel Type desiderato
+________________________________________________________________________________________________
+
+	FORMULARI
+Per poterli usare si DEVE importare:
+ import FormsModule, ReactiveFormsModule
+
+
+_________________________________________________________________________________________________
+
+	SERVICES	--> ng g s services/myService
+Dire 'service' é dire @Injectable
+Li uso x:
+1- parlare alla mia API : chiedere e recuperare
+2- x i Signals : Observable --> avere variabili sempre 'aggornate'== ovunque le cambio, in qualsiasi component, la variabile sarà modificata alla radice e VISIBILE modificata DAPPERTUTTO
+3- avro' le mie 'Regole di Mestiere' (-->in questo ricordano i services della BLL)
+
+
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+
+--> into Component: .subscribe() --> x abbonarsi al risultato (subscribe é asynchron)--> trasformo i datas della request nel Type desiderato
+___________________________
+
+import { HttpClient } from '@angular/common/http';
+
+HttpClientModule,  --> per parlare con la tua API:
+                     serve a fare REQUEST HTTP e gestire la risposta
+_____________
+import to API
+
+
+
+________________
+
+security

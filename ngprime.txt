@@ -1,0 +1,9 @@
+in terminal
+
+1- installare Prime con cmd : 
+
+2- in package.json aggiungi in "dependencies": {
+
+	"primeflex": "^3.3.1",  --> bisogna installare i flex
+    	"primeicons": "^6.0.1",
+    	"primeng": "^17.1.0",  --> la base x cominciare
